@@ -1,5 +1,9 @@
 import csv
 import codecs
+import datetime
+
+import openpyxl
+from openpyxl import load_workbook
 from pandas.io.excel import ExcelWriter
 import pandas as pd
 import xlsxwriter
@@ -7,6 +11,7 @@ import xlrd as xlrd
 import os
 import re
 import win32file
+
 
 def CsvToJson(csvPath):
     with open(csvPath, "r") as csvfile:
@@ -18,14 +23,17 @@ def CsvToJson(csvPath):
                 blockNmaeList.append(rows[0][j])
         return blockNmaeList
 
+
 class Data():
     le = 0
     ri = 0
+    GVWindexList = []
+
+
 def getxlsxData(path, blockName):
     list = path.rsplit("/", 1)
     filename = list[1]
     filepath = list[0]
-
     xlsxname = filename.split('.')[0] + '.xlsx'
     xlsxPath = os.path.join(filepath, xlsxname)
     workbook = xlsxwriter.Workbook(xlsxPath)
@@ -34,8 +42,7 @@ def getxlsxData(path, blockName):
     with ExcelWriter(xlsxPath) as ew:
         pd.read_csv(path).to_excel(ew, index=False)
     demoxlsxpath = readData(filepath, xlsxname, blockName)
-
-    ans = [Data.le, Data.ri, demoxlsxpath]
+    ans = [Data.le, Data.ri, demoxlsxpath, Data.GVWindexList]
     return ans
 
 
@@ -45,7 +52,6 @@ def readData(filepath, xlsxname, blockName):
     workbook = xlrd.open_workbook(xlsxpath)
     # 根据sheet索引或者名称获取sheet内容
     sheet = workbook.sheet_by_index(0)  # sheet索引从0开始
-
     rows = sheet.nrows  # 获取有多少行
     cols = sheet.ncols  # 获取有多少列
     blocknAME = blockName
@@ -54,7 +60,6 @@ def readData(filepath, xlsxname, blockName):
     workbook = xlsxwriter.Workbook(demoxlsxpath)  # 创建一个excel文件
     # 在文件中创建一个名为TEST的sheet,不加名字默认为sheet1
     worksheet = workbook.add_worksheet(u'sheet1')
-
     for i in range(0, rows):
         for j in range(0, 4):
             value = sheet.cell_value(i, j)
@@ -62,6 +67,10 @@ def readData(filepath, xlsxname, blockName):
                 value = ''
             worksheet.write(i, j, value)
 
+    for j in range(4, cols):
+        value = sheet.cell_value(1, j)
+        if (value == 'GVW'):
+            Data.GVWindexList.append(j)
     left = 0
     right = 0
     flag = 0
@@ -71,7 +80,6 @@ def readData(filepath, xlsxname, blockName):
         newvalue = sheet.cell_value(0, l)
         if (newvalue == blocknAME):
             left = l
-
             flag = 1
             for r in range(l + 1, cols):
                 value = sheet.cell_value(0, r)
@@ -90,6 +98,7 @@ def readData(filepath, xlsxname, blockName):
                 value = ''
             worksheet.write(i, x, value)
             x += 1
+
     workbook.close()
     return demoxlsxpath
 
@@ -121,7 +130,7 @@ def csv_to_xlsx(filepath, filename):
             for i in line:
                 if (re.search('noname', i)):
                     pass
-                elif (re.search(' ', i)):
+                elif (re.search('', i)):
                     pass
                 else:
                     worksheet.write(l, r, i)
@@ -129,6 +138,60 @@ def csv_to_xlsx(filepath, filename):
             l = l + 1
     workbook.close()
     return xlsxname
+
+
+def addData2xlsx(xlsxPath):
+    workbook = xlrd.open_workbook(xlsxPath)
+    sheet = workbook.sheet_by_index(0)  # sheet索引从0开始
+    rows = sheet.nrows  # 获取有多少行
+    cols = sheet.ncols  # 获取有多少列
+    datetime_object = datetime.datetime.now()
+    time = str(datetime_object).split(' ')[0] + str(datetime_object).split('.')[1]
+    SheetName = 'Load_iterationN' + time
+    print(SheetName)
+    wb = openpyxl.load_workbook(xlsxPath)
+    wb.create_sheet(SheetName)
+    dest_sheet = wb.get_sheet_by_name(SheetName)
+    for i in range(0, rows):
+        for j in range(0, cols):
+            value = sheet.cell_value(i, j)
+            if (re.search('Unnamed', value)):
+                value = ''
+            if (j >= 26):
+                t = int(j) - 26
+                x = chr(t + 65)
+                x = 'A' + x
+                item = x + str(i + 1)
+                dest_sheet[item] = value
+            else:
+                x = chr(int(j) + 65)
+                item = x + str(i + 1)
+                dest_sheet[item] = value
+    wb.save(xlsxPath)
+
+def washXlsx(xlsxPath):
+    workbook = xlrd.open_workbook(xlsxPath)
+    sheet = workbook.sheet_by_index(0)  # sheet索引从0开始
+    rows = sheet.nrows  # 获取有多少行
+    cols = sheet.ncols  # 获取有多少列
+    wb = openpyxl.load_workbook(xlsxPath)
+    dest_sheet = wb.get_sheet_by_name(wb.sheetnames[0])
+    for i in range(0, rows):
+        for j in range(0, cols):
+            value = sheet.cell_value(i, j)
+            if (re.search('Unnamed', value)):
+                value = ''
+            if (j >= 26):
+                t = int(j) - 26
+                x = chr(t + 65)
+                x = 'A' + x
+                item = x + str(i + 1)
+                dest_sheet[item] = value
+            else:
+                x = chr(int(j) + 65)
+                item = x + str(i + 1)
+                dest_sheet[item] = value
+    wb.save(xlsxPath)
 
 
 def xlsx_to_csv(xlsxpath):
@@ -149,6 +212,7 @@ def xlsx_to_csv(xlsxpath):
                     row_value[i] = ''
             write.writerow(row_value)
 
+
 def is_used(file_name):
     try:
         v_handle = win32file.CreateFile(file_name, win32file.GENERIC_READ, 0, None, win32file.OPEN_EXISTING,
@@ -158,3 +222,29 @@ def is_used(file_name):
     except Exception:
         return True
     return result
+
+
+def ScientificEnumeration2Number(a):
+    li = a.split('e')
+    x = 0
+    if (len(li) == 2):
+        e = float(li[0])
+        f = int(li[1])
+        x = e * pow(10, f)
+    else:
+        x = float(li[0])
+    return x
+
+
+def ScientificEnumerationFormatting(a):
+    li = str(a).split('e')
+    x = 0
+    if (len(li) == 2):
+        e = float(li[0])
+        f = int(li[1])
+        x = e * pow(10, f)
+    else:
+        x = float(li[0])
+    return f"{x:.2e}"
+
+
