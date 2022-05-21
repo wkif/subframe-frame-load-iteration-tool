@@ -14,6 +14,7 @@ import shutil
 import sys
 from decimal import Decimal
 import QCandyUi
+import xlsxwriter
 from QCandyUi import CandyWindow
 from openpyxl import load_workbook
 import xlrd
@@ -27,8 +28,10 @@ from qt_material import apply_stylesheet
 import pandas as pd
 import numpy as np
 from designerFile.tools.log import createLog
-from designerFile.tools.tools import getxlsxData, csv_to_xlsx_pd, csv_to_xlsx, xlsx_to_csv, CsvToJson, is_used, \
-    ScientificEnumeration2Number, ScientificEnumerationFormatting, addData2xlsx, washXlsx
+from designerFile.tools.tools import getxlsxData, csv_to_xlsx_pd, csv_to_xlsx, xlsx_to_csv, getblockNmaeListfromcsv, \
+    is_used, \
+    ScientificEnumeration2Number, ScientificEnumerationFormatting, addData2xlsx, washXlsx, getblockNmaeListfromxlsx, \
+    copyXlsx
 from designerFile.mainView import Ui_MainWindow
 from designerFile.view2 import Ui_Dialog
 
@@ -66,6 +69,8 @@ class globalData():
     scrollBar_C2 = ''
     save_loadDataPath = ''
     save_resultDataPath = ''
+    loadDataisXLSX = False
+    temploadDataPath = ''
 
 
 class MyMainForm(QMainWindow, Ui_MainWindow):
@@ -79,6 +84,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.pushButton_3.clicked.connect(self.ImportCYCLE)
         self.pushButton_4.clicked.connect(self.noticeSave)
         self.pushButton_5.clicked.connect(self.writetoCSV)
+        self.pushButton_9.clicked.connect(self.clearAll)
         self.tableWidget_2.horizontalHeader().sectionClicked.connect(self.HorSectionClicked)  # 表头单击信号
         # tableWidget
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -97,12 +103,6 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
 
         # tableWidget_2
         self.tableWidget_2.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        # self.tableWidget_2.horizontalHeader().setStyleSheet(
-        #     "QHeaderView::section{font:5pt;color: black;};")
-        # self.tableWidget.horizontalHeader().setStyleSheet(
-        #     "QHeaderView::section{font:5pt;color: black;};")
-        # self.tableWidget_3.horizontalHeader().setStyleSheet(
-        #     "QHeaderView::section{font:5pt;color: black;};")
 
         # 中表格铺满整个QTableWidget控件
         self.tableWidget_2.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -181,10 +181,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                 self.messageDialog('警告', '文件正在被占用')
             else:
                 filename = filenames[0].rsplit("/", 1)[1]
-                if (not re.search('.csv', filename)):
-                    msg_box = QMessageBox(QMessageBox.Warning, '警告', '请选择csv文件')
-                    msg_box.exec_()
-                else:
+
+                if (re.search('.csv', filename)):
                     globalData.VRLDApath = filenames[0]
                     data = pd.read_csv(filenames[0])
                     data2 = np.array(data)
@@ -213,7 +211,6 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                             flag = 1
                             self.messageDialog('警告', '文件似乎不是VRLDA损伤数据，确实导入？')
                         globalData.HotSpots_N_List.append(data2[i][1])
-
                         self.tableWidget.insertRow(0)
                         for j in range(len(item)):
                             if j == 2:
@@ -228,6 +225,62 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                             self.tableWidget.setItem(0, j, item)
                             if (i % 2 == 0):
                                 self.tableWidget.item(0, j).setBackground(QBrush(QColor(244, 244, 244)))
+                elif (re.search('.xlsx', filename)):
+                    globalData.VRLDApath = filenames[0]
+                    workbook = xlrd.open_workbook(globalData.VRLDApath)
+                    sheet_names = workbook.sheet_names()
+                    if (len(sheet_names) == 1):
+                        sheet = workbook.sheet_by_index(0)
+                    else:
+                        item, ok = QInputDialog.getItem(self, "请选择sheet", 'sheet列表', sheet_names, 0, False)
+                        if ok and item:
+                            sheet = workbook.sheet_by_name(item)
+                    rows = sheet.nrows  # 获取有多少行
+                    cols = sheet.ncols  # 获取有多少列
+                    self.tableWidget.setRowCount(0)
+                    self.tableWidget.clearContents()
+                    self.tableWidget_2.setRowCount(0)
+                    self.tableWidget_2.clearContents()
+                    self.tableWidget_3.setRowCount(0)
+                    self.tableWidget_3.clearContents()
+                    self.tableWidget_5.setRowCount(0)
+                    self.tableWidget_5.clearContents()
+                    self.tableWidget_4.setRowCount(0)
+                    self.tableWidget_4.clearContents()
+                    self.tableWidget_6.setRowCount(0)
+                    self.tableWidget_6.clearContents()
+                    self.tableWidget_7.setRowCount(0)
+                    self.tableWidget_7.clearContents()
+                    self.tableWidget_8.setRowCount(0)
+                    self.tableWidget_8.clearContents()
+                    globalData.HotSpots_N_List.clear()
+                    if (cols != 3):
+                        self.messageDialog('警告', '文件似乎不是VRLDA损伤数据，确实导入？')
+                    for i in range(1, rows):
+                        self.tableWidget.insertRow(i - 1)
+                        for j in range(0, cols):
+                            # print(type(sheet.cell_value(i, j)))
+                            value = sheet.cell_value(i, j)
+                            # print(value)
+                            if (i > 0 and j == 1):
+                                globalData.HotSpots_N_List.append(value)
+                                value = str(value).split('.')[0]
+                                # print(globalData.HotSpots_N_List)
+                            if j == 2 and i > 0:
+                                # format(data[i][j], ".3f")
+                                L1 = Decimal(float(value)).quantize(Decimal("0.000"))
+                                z = str(L1)
+                            else:
+                                z = str(value)
+                            # print(z)
+                            item = QTableWidgetItem(z)
+                            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                            self.tableWidget.setItem(i - 1, j, item)
+                            if (i - 1 % 2 == 0):
+                                self.tableWidget.item(i - 1, j).setBackground(QBrush(QColor(244, 244, 244)))
+                else:
+                    msg_box = QMessageBox(QMessageBox.Warning, '警告', '请选择csv或者xlsx文件')
+                    msg_box.exec_()
 
     def ImportLoadData(self):
         dig = QFileDialog()
@@ -237,43 +290,95 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             filenames = dig.selectedFiles()
             list = filenames[0].rsplit("/", 1)
             filename = list[1]
-            if (not re.search('.csv', filename)):
-                msg_box = QMessageBox(QMessageBox.Warning, '警告', '请选择csv文件')
-                msg_box.exec_()
-            elif is_used(filenames[0]):
+
+            if is_used(filenames[0]):
                 self.messageDialog('警告', '文件正在被占用')
             else:
-                filepath = list[0]
-                globalData.userFilepath = filepath
-                datetime_object = datetime.datetime.now()
-                time = str(datetime_object).split(' ')[0]
-                newFileName = (filename.split('.')[0] + '-' + time + '.csv').replace('-', '_')
-                newFilePath = os.path.join(globalData.cacheFilepath, 'cache', newFileName).replace('\\', '/')
-                if not os.path.exists(os.path.join(globalData.cacheFilepath, 'cache')):
-                    os.makedirs(os.path.join(globalData.cacheFilepath, 'cache'))
-                shutil.copy(filenames[0], newFilePath)
-                globalData.LoadDatapath = newFilePath
-                BlockNameList = CsvToJson(globalData.LoadDatapath)
-                xlsxname = csv_to_xlsx(os.path.join(globalData.cacheFilepath, 'cache'), newFileName)
-                globalData.LoadDatapath_xlsx = os.path.join(globalData.cacheFilepath, 'cache', xlsxname).replace("\\",
-                                                                                                                 '/')
-                globalData.bolckNameList = BlockNameList
-                globalData.BlockCount = len(BlockNameList)
-                self.tableWidget_2.setRowCount(0)
-                self.tableWidget_2.clearContents()
-                self.tableWidget_5.setRowCount(0)
-                self.tableWidget_5.clearContents()
-                self.tableWidget_7.setRowCount(0)
-                self.tableWidget_7.clearContents()
-                self.tableWidget_2.setColumnCount(globalData.BlockCount)
-                self.tableWidget_4.setColumnCount(3)
-                self.tableWidget_5.setColumnCount(globalData.BlockCount)
-                self.tableWidget_7.setColumnCount(globalData.BlockCount)
-                ShowbolckNameList = []
-                for i in globalData.bolckNameList:
-                    ShowbolckNameList.append(i.split(' ')[0])
-                self.tableWidget_2.setHorizontalHeaderLabels(ShowbolckNameList)
-                self.tableWidget_2.resizeColumnsToContents()
+                if re.search('.csv', filename):
+                    filePath = os.path.join(globalData.cacheFilepath, 'cache')
+                    if not os.path.exists(filePath):
+                        os.mkdir(filePath)
+                    xlsxname = csv_to_xlsx(filePath, filenames[0])
+                    globalData.LoadDatapath = os.path.join(globalData.cacheFilepath, 'cache', xlsxname).replace(
+                        "\\",
+                        '/')
+                    globalData.LoadDatapath_xlsx = copyXlsx(globalData.LoadDatapath, globalData.cacheFilepath,
+                                                            flag=0)
+                    BlockNameList = getblockNmaeListfromxlsx(globalData.LoadDatapath)
+                    globalData.bolckNameList = BlockNameList
+                    globalData.BlockCount = len(BlockNameList)
+                    self.tableWidget_2.setRowCount(0)
+                    self.tableWidget_2.clearContents()
+                    self.tableWidget_5.setRowCount(0)
+                    self.tableWidget_5.clearContents()
+                    self.tableWidget_7.setRowCount(0)
+                    self.tableWidget_7.clearContents()
+                    self.tableWidget_8.setRowCount(0)
+                    self.tableWidget_8.clearContents()
+                    self.tableWidget_2.setColumnCount(globalData.BlockCount)
+                    self.tableWidget_4.setColumnCount(3)
+                    self.tableWidget_5.setColumnCount(globalData.BlockCount)
+                    self.tableWidget_7.setColumnCount(globalData.BlockCount)
+                    ShowbolckNameList = []
+                    for i in globalData.bolckNameList:
+                        ShowbolckNameList.append(i.split(' ')[0])
+                    self.tableWidget_2.setHorizontalHeaderLabels(ShowbolckNameList)
+                    self.tableWidget_2.resizeColumnsToContents()
+                elif re.search('.xlsx', filename):
+                    globalData.loadDataisXLSX = True
+                    # globalData.LoadDatapath = copyXlsx(filenames[0], globalData.cacheFilepath, flag=1, self=MyMainForm)
+                    list = filenames[0].rsplit("/", 1)
+                    workbook = xlrd.open_workbook(filenames[0])
+                    sheet_names = workbook.sheet_names()
+                    if (len(sheet_names) == 1):
+                        # 根据sheet索引或者名称获取sheet内容
+                        sheet = workbook.sheet_by_index(0)  # sheet索引从0开始
+                    else:
+                        item, ok = QInputDialog.getItem(self, "请选择sheet", 'sheet列表', sheet_names, 0, False)
+                        if ok and item:
+                            sheet = workbook.sheet_by_name(item)
+                    rows = sheet.nrows  # 获取有多少行
+                    cols = sheet.ncols  # 获取有多少列
+                    # sheet.cell_value(第几行,第几列)
+                    datetime_object = datetime.datetime.now()
+                    time = str(datetime_object).split(' ')[0] + str(datetime_object).split('.')[1]
+                    xlsxname = 'Load_ IterationN' + time + '.xlsx'
+                    demoxlsxpath = os.path.join(globalData.cacheFilepath, 'cache', xlsxname)
+                    workbook2 = xlsxwriter.Workbook(demoxlsxpath)  # 创建一个excel文件
+                    # 在文件中创建一个名为TEST的sheet,不加名字默认为sheet1
+                    worksheet = workbook2.add_worksheet(u'Sheet1')
+                    for i in range(0, rows):
+                        for j in range(0, cols):
+                            value = sheet.cell_value(i, j)
+                            worksheet.write(i, j, value)
+                    workbook2.close()
+                    globalData.LoadDatapath = demoxlsxpath.replace('\\', '/')
+                    # globalData.LoadDatapath = copyXlsx(filenames[0], globalData.cacheFilepath, flag=1, self=MyMainForm)
+                    # --------------------------------------
+                    globalData.LoadDatapath_xlsx = copyXlsx(filenames[0], globalData.cacheFilepath, flag=0)
+                    BlockNameList = getblockNmaeListfromxlsx(globalData.LoadDatapath)
+                    globalData.bolckNameList = BlockNameList
+                    globalData.BlockCount = len(BlockNameList)
+                    self.tableWidget_2.setRowCount(0)
+                    self.tableWidget_2.clearContents()
+                    self.tableWidget_5.setRowCount(0)
+                    self.tableWidget_5.clearContents()
+                    self.tableWidget_7.setRowCount(0)
+                    self.tableWidget_7.clearContents()
+                    self.tableWidget_8.setRowCount(0)
+                    self.tableWidget_8.clearContents()
+                    self.tableWidget_2.setColumnCount(globalData.BlockCount)
+                    self.tableWidget_4.setColumnCount(3)
+                    self.tableWidget_5.setColumnCount(globalData.BlockCount)
+                    self.tableWidget_7.setColumnCount(globalData.BlockCount)
+                    ShowbolckNameList = []
+                    for i in globalData.bolckNameList:
+                        ShowbolckNameList.append(i.split(' ')[0])
+                    self.tableWidget_2.setHorizontalHeaderLabels(ShowbolckNameList)
+                    self.tableWidget_2.resizeColumnsToContents()
+                else:
+                    msg_box = QMessageBox(QMessageBox.Warning, '警告', '请选择csv或者xlsx文件')
+                    msg_box.exec_()
 
     def ImportCYCLE(self):
         if len(globalData.bolckNameList) == 0:
@@ -292,18 +397,29 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                 filenames = dig.selectedFiles()
                 list = filenames[0].rsplit("/", 1)
                 filename = list[1]
-                if (not re.search('.csv', filename)):
-                    msg_box = QMessageBox(QMessageBox.Warning, '警告', '请选择csv文件')
-                    msg_box.exec_()
-                elif is_used(filenames[0]):
+                if is_used(filenames[0]):
                     self.messageDialog('警告', '文件正在被占用')
                 else:
-                    filepath = list[0]
-                    xlsxname = csv_to_xlsx_pd(globalData.cacheFilepath, filepath, filename)
-                    # csv转为xlsx
-                    xlsxPath = os.path.join(globalData.cacheFilepath, 'cache', xlsxname).replace('\\', '/')
+                    xlsxPath = ''
+                    if re.search('.csv', filename):
+                        filepath = list[0]
+                        xlsxname = csv_to_xlsx_pd(globalData.cacheFilepath, filepath, filename)
+                        # csv转为xlsx
+                        xlsxPath = os.path.join(globalData.cacheFilepath, 'cache', xlsxname).replace('\\', '/')
+                    elif re.search('.xlsx', filename):
+                        xlsxPath = filenames[0]
+                    else:
+                        msg_box = QMessageBox(QMessageBox.Warning, '警告', '请选择csv文件')
+                        msg_box.exec_()
                     workbook = xlrd.open_workbook(xlsxPath)
-                    sheet = workbook.sheet_by_index(0)
+                    sheet_names = workbook.sheet_names()
+                    if (len(sheet_names) == 1):
+                        # 根据sheet索引或者名称获取sheet内容
+                        sheet = workbook.sheet_by_index(0)  # sheet索引从0开始
+                    else:
+                        item, ok = QInputDialog.getItem(self, "请选择sheet", 'sheet列表', sheet_names, 0, False)
+                        if ok and item:
+                            sheet = workbook.sheet_by_name(item)
                     rows = sheet.nrows
                     cols = sheet.ncols
                     self.tableWidget_2.setRowCount(0)
@@ -343,12 +459,14 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                     a2 = np.array(x)
                     ifContains = np.in1d(a1, a2)
                     # print(ifContains)
-                    Nstr = ""
-                    for i in range(len(ifContains)):
-                        if not ifContains[i]:
-                            Nstr += (a1[i] + ' ')
-                    noticeStr = '可能存在表头不一致，或者Cycle表中的{}列在载荷数据中未定义，请检查载荷数据和Cycle损伤数据表头的一致性，重新导入'.format(Nstr)
-                    self.messageDialog('提示', noticeStr)
+                    kif = False
+                    if kif in ifContains:
+                        Nstr = ""
+                        for i in range(len(ifContains)):
+                            if not ifContains[i]:
+                                Nstr += (a1[i] + ' ')
+                        noticeStr = '可能存在表头不一致，或者Cycle表中的{}列在载荷数据中未定义，请检查载荷数据和Cycle损伤数据表头的一致性，重新导入'.format(Nstr)
+                        self.messageDialog('提示', noticeStr)
                     dataListfortableWidget_2 = []
                     zeroList = []
                     dataListfortableWidget_4 = []
@@ -398,22 +516,6 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                                     ltemList.append(0)
                             dataListfortableWidget_5.append(ltemList)
 
-                    # dataListfortableWidget_4.append(
-                    #     ['ADD', sheet.cell_value(globalData.HotSpots_N_List.index(item) + 1, 0)])
-                    # ltemList = []
-                    # for block in globalData.bolckNameList:
-                    #     flag2 = 0
-                    #     for l in range(1, cols):
-                    #         s = sheet.cell_value(0, l)
-                    #         if (re.search(s, block)):
-                    #             value = sheet.cell_value(globalData.HotSpots_N_List.index(item) + 1, l)
-                    #             ltemList.append(ScientificEnumerationFormatting(value))
-                    #             flag2 = 1
-                    #             break
-                    #     if (flag2 == 0):
-                    #         ltemList.append(0)
-                    # dataListfortableWidget_5.append(ltemList)
-
                     flagforwid_7 = 0
                     # self.tableWidget_2.resizeColumnsToContents()
                     colorIndex = 0
@@ -428,7 +530,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                                 self.tableWidget_2.setItem(rowIndex, j, item)
                                 colorIndex += 1
                                 if (rowIndex % 2 == 0 and self.tableWidget_2.item(rowIndex, j)):
-                                    self.tableWidget_2.item(rowIndex, j).setBackground(QBrush(QColor(244, 244, 244)))
+                                    self.tableWidget_2.item(rowIndex, j).setBackground(
+                                        QBrush(QColor(244, 244, 244)))
                                 item_7 = QTableWidgetItem(str(0))
                                 item_7.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
                                 self.tableWidget_7.setItem(0, j, item_7)
@@ -441,7 +544,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                                 item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
                                 self.tableWidget_2.setItem(rowIndex, j, item)
                                 if (rowIndex % 2 == 0 and self.tableWidget_2.item(rowIndex, j)):
-                                    self.tableWidget_2.item(rowIndex, j).setBackground(QBrush(QColor(244, 244, 244)))
+                                    self.tableWidget_2.item(rowIndex, j).setBackground(
+                                        QBrush(QColor(244, 244, 244)))
 
                     for rowIndex in range(len(dataListfortableWidget_4)):
                         rowData = dataListfortableWidget_4[rowIndex]
@@ -465,8 +569,26 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                                 self.tableWidget_5.item(rowIndex, j).setBackground(QBrush(QColor(244, 244, 244)))
                     self.tableWidget_7.cellChanged.connect(self.calculate)
                     globalData.cycleFlag = 1
-
                     self.calculate(0, 0)
+
+                # if re.search('.csv', filename):
+                #     if is_used(filenames[0]):
+                #         self.messageDialog('警告', '文件正在被占用')
+                #     else:
+                #         filepath = list[0]
+                #         xlsxname = csv_to_xlsx_pd(globalData.cacheFilepath, filepath, filename)
+                #         # csv转为xlsx
+                #         xlsxPath = os.path.join(globalData.cacheFilepath, 'cache', xlsxname).replace('\\', '/')
+                #
+                # elif re.search('.xlsx', filename):
+                #     if is_used(filenames[0]):
+                #         self.messageDialog('警告', '文件正在被占用')
+                #     else:
+                #         xlsxPath=filenames[0]
+                #
+                # else:
+                #     msg_box = QMessageBox(QMessageBox.Warning, '警告', '请选择csv文件')
+                #     msg_box.exec_()
 
     def calculate(self, row, col):
         if (not self.tableWidget_7.item(row, col).text().isdigit()):
@@ -570,126 +692,99 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         if len(globalData.HotSpots_N_List) != 0:
             globalData.blockIndex = index
             blockName = globalData.bolckNameList[index]
-            ans = getxlsxData(globalData.LoadDatapath, blockName)
-            xlsxPath = ans[2]
-            globalData.left = ans[0]
-            globalData.right = ans[1]
-            globalData.GVWindexList = ans[3]
-            # print(globalData.GVWindexList)
-            workbook = xlrd.open_workbook(xlsxPath)
-            sheet = workbook.sheet_by_index(0)
-            rows = sheet.nrows
-            cols = sheet.ncols
-            globalData.dialog = ChildWin_block()
-            self.tableWidget_block = globalData.dialog.tableWidget
-            globalData.dialog.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-            globalData.dialog.tableWidget.setColumnCount(cols)
-            globalData.dialog.tableWidget.horizontalHeader().setVisible(False)  # 隐藏水平表头
-            # print(sheet.row(1))
-            titleList = sheet.row(1)
+            if not globalData.LoadDatapath_xlsx:
+                self.messageDialog('警告', '请先导入文件数据')
+            else:
+                ans = getxlsxData(globalData.LoadDatapath_xlsx, blockName)
+                xlsxPath = ans[2]
+                globalData.left = ans[0]
+                globalData.right = ans[1]
+                globalData.GVWindexList = ans[3]
+                # print(globalData.GVWindexList)
+                workbook = xlrd.open_workbook(xlsxPath)
+                sheet = workbook.sheet_by_index(0)
+                rows = sheet.nrows
+                cols = sheet.ncols
+                globalData.dialog = ChildWin_block()
+                self.tableWidget_block = globalData.dialog.tableWidget
+                globalData.dialog.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+                globalData.dialog.tableWidget.setColumnCount(cols)
+                globalData.dialog.tableWidget.horizontalHeader().setVisible(False)  # 隐藏水平表头
+                # print(sheet.row(1))
+                titleList = sheet.row(1)
 
-            if (str(sheet.cell_value(1, 4)) == str(sheet.cell_value(1, len(titleList) - 1))):
-                globalData.GVWflag = len(titleList) - 1
-            # print(globalData.GVWflag)
-            for i in range(rows):
-                row = globalData.dialog.tableWidget.rowCount()
-                globalData.dialog.tableWidget.insertRow(row)
-                for j in range(cols):
-                    item = QTableWidgetItem(str(sheet.cell_value(i, j)))
-                    if (i == 0 or i == 1 or j == 0 or j == 1 or j == 2 or j == 3):
-                        item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
-                    #     部分可编辑
-                    item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-                    globalData.dialog.tableWidget.setItem(row, j, item)
-            globalData.dialog.tableWidget.setSpan(0, 4, 1, cols)
-            globalData.dialog.tableWidget.cellChanged.connect(self.updateData)
-            globalData.dialog.show()
+                if (str(sheet.cell_value(1, 4)) == str(sheet.cell_value(1, len(titleList) - 1))):
+                    globalData.GVWflag = len(titleList) - 1
+                # print(globalData.GVWflag)
+                for i in range(rows):
+                    row = globalData.dialog.tableWidget.rowCount()
+                    globalData.dialog.tableWidget.insertRow(row)
+                    for j in range(cols):
+                        item = QTableWidgetItem(str(sheet.cell_value(i, j)))
+                        if (i == 0 or i == 1 or j == 0 or j == 1 or j == 2 or j == 3):
+                            item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                        #     部分可编辑
+                        item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                        globalData.dialog.tableWidget.setItem(row, j, item)
+                globalData.dialog.tableWidget.setSpan(0, 4, 1, cols)
+                globalData.dialog.tableWidget.cellChanged.connect(self.updateData)
+                globalData.dialog.show()
 
-            def pB_OK():
-                globalData.dialog.close()
-                os.remove(xlsxPath)
+                def pB_OK():
+                    globalData.dialog.close()
+                    os.remove(xlsxPath)
 
-            globalData.dialog.buttonBox.clicked.connect(pB_OK)
-            globalData.dialog.exec_()
+                globalData.dialog.buttonBox.clicked.connect(pB_OK)
+                globalData.dialog.exec_()
 
         else:
             self.messageDialog('警告', '请先导入文件数据')
 
     def updateData(self, row, col):
-
-        globalData.editChangeFlag = 1
-        value = self.tableWidget_block.item(row, col).text()
-        wb = load_workbook(filename=globalData.LoadDatapath_xlsx)
-        ws = wb['Sheet1']
-
-        if globalData.GVWflag != 0:
-            if col == 4 or col == globalData.GVWflag:
-                for GVWindex in globalData.GVWindexList:
-                    if GVWindex >= 26:
-                        t = int(GVWindex) - 26
-                        x = chr(t + 65)
-                        x = 'A' + x
-                        item = x + str(row + 1)
-                        ws[item] = value
-                    else:
-                        x = chr(int(GVWindex) + 65)
-                        item = x + str(row + 1)
-                        ws[item] = value
-            # if col == 4:
-            #     if int(globalData.left) >= 26:
-            #         t = int(globalData.left) - 26
-            #         x = chr(t + col - 4 + (int(globalData.right) - int(globalData.left)) - 1 + 65)
-            #         x = 'A' + x
-            #         item = x + str(row + 1)
-            #         ws[item] = value
-            #     else:
-            #         x = chr(int(globalData.left) + col - 4 + (int(globalData.right) - int(globalData.left)) - 1 + 65)
-            #         item = x + str(row + 1)
-            #         ws[item] = value
-            # elif col == globalData.GVWflag:
-            #     if int(globalData.left) >= 26:
-            #         t = int(globalData.left) - 26
-            #         x = chr(t + col - 4 - (int(globalData.right) - int(globalData.left)) + 1 + 65)
-            #         x = 'A' + x
-            #         item = x + str(row + 1)
-            #         ws[item] = value
-            #     else:
-            #         x = chr(int(globalData.left) + col - 4 - (int(globalData.right) - int(globalData.left)) + 1 + 65)
-            #         item = x + str(row + 1)
-            #         ws[item] = value
-
-        if int(globalData.left) >= 26:
-            t = int(globalData.left) - 26
-            x = chr(t + col - 4 + 65)
-            x = 'A' + x
-            item = x + str(row + 1)
-            ws[item] = value
-        else:
-            x = chr(int(globalData.left) + col - 4 + 65)
-            item = x + str(row + 1)
-            ws[item] = value
-
         if is_used(globalData.LoadDatapath_xlsx):
             self.messageDialog('警告', '文件正在被占用')
         else:
+            globalData.editChangeFlag = 1
+            value = self.tableWidget_block.item(row, col).text()
+            wb = load_workbook(filename=globalData.LoadDatapath_xlsx)
+            ws = wb['Sheet1']
+            if globalData.GVWflag != 0:
+                if col == 4 or col == globalData.GVWflag:
+                    for GVWindex in globalData.GVWindexList:
+                        if GVWindex >= 26:
+                            t = int(GVWindex) - 26
+                            x = chr(t + 65)
+                            x = 'A' + x
+                            item = x + str(row + 1)
+                            ws[item] = value
+                        else:
+                            x = chr(int(GVWindex) + 65)
+                            item = x + str(row + 1)
+                            ws[item] = value
+            if int(globalData.left) >= 26:
+                t = int(globalData.left) - 26
+                x = chr(t + col - 4 + 65)
+                x = 'A' + x
+                item = x + str(row + 1)
+                ws[item] = value
+            else:
+                x = chr(int(globalData.left) + col - 4 + 65)
+                item = x + str(row + 1)
+                ws[item] = value
+
             wb.save(globalData.LoadDatapath_xlsx)
-            xlsx_to_csv(globalData.LoadDatapath_xlsx)
-            os.remove(globalData.LoadDatapath_xlsx)
+
         globalData.dialog.close()
         self.HorSectionClicked(globalData.blockIndex)
-
-    def updateGVW(self, col, value):
-        pass
 
     def noticeSave(self):
         if (globalData.editChangeFlag == 0):
             self.messageDialog('提示', '载荷数据没有做修改！')
         else:
             directory = QtWidgets.QFileDialog.getExistingDirectory(None, "选取文件夹", globalData.userFilepath)  # 起始路径
-            if (globalData.LoadDatapath_xlsx):
-                addData2xlsx(globalData.LoadDatapath_xlsx)
-            washXlsx(globalData.LoadDatapath_xlsx)
-            shutil.copy(globalData.LoadDatapath_xlsx, directory)
+            addData2xlsx(globalData.LoadDatapath_xlsx, globalData.LoadDatapath)
+            washXlsx(globalData.LoadDatapath)
+            shutil.copy(globalData.LoadDatapath, directory)
             self.messageDialog('提示', '保存成功！')
 
     def writetoCSV(self):
@@ -786,6 +881,34 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         msg_box = QMessageBox(x, type, message)
         msg_box.exec_()
 
+    def clearAll(self):
+        self.tableWidget.setRowCount(0)
+        self.tableWidget.clearContents()
+        self.tableWidget_2.setRowCount(0)
+        self.tableWidget_2.clearContents()
+        self.tableWidget_3.setRowCount(0)
+        self.tableWidget_3.clearContents()
+        self.tableWidget_5.setRowCount(0)
+        self.tableWidget_5.clearContents()
+        self.tableWidget_4.setRowCount(0)
+        self.tableWidget_4.clearContents()
+        self.tableWidget_6.setRowCount(0)
+        self.tableWidget_6.clearContents()
+        self.tableWidget_7.setRowCount(0)
+        self.tableWidget_7.clearContents()
+        self.tableWidget_8.setRowCount(0)
+        self.tableWidget_8.clearContents()
+        globalData.HotSpots_N_List.clear()
+        ShowbolckNameList = []
+        for i in globalData.bolckNameList:
+            ShowbolckNameList.append('')
+        self.tableWidget_2.setHorizontalHeaderLabels(ShowbolckNameList)
+        globalData.HotSpots_N_List = []
+        globalData.LoadDatapath = ''
+        # path = os.path.join(globalData.cacheFilepath, 'cache').replace('\\', '/')
+        # print(path)
+        # os.removedirs(path)
+
 
 # if __name__ == "__main__":
 def main():
@@ -822,6 +945,6 @@ def main():
     #              'light_yellow.xml']
     # apply_stylesheet(app, theme=themeList[10], invert_secondary=True, extra=extra)
     myWin = MyMainForm()
-    myWin = CandyWindow.createWindow(myWin, 'blueDeep',title='副车架台架载荷迭代工具')
+    myWin = CandyWindow.createWindow(myWin, 'blueDeep', title='副车架台架载荷迭代工具')
     myWin.show()
     sys.exit(app.exec_())

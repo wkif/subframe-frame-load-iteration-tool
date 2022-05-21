@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "main.py", line 16, in &lt;module&gt;
-  File "designerFile\index.py", line 825, in main
-  File "QCandyUi\CandyWindow.py", line 58, in createWindow
-  File "QCandyUi\CandyWindow.py", line 73, in setTheme
-FileNotFoundError: [Errno 2] No such file or directory: 'F:/File_my/Project/Plug-in_1/Pyqt/dist/main/QCandyUi/candyUi/theme.json'

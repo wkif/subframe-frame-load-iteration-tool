@@ -63,7 +63,7 @@
  [],
  False,
  False,
- 1651824219,
+ 1653134219,
  [('runw.exe',
    'f:\\file_my\\project\\plug-in_1\\pyqt\\venv\\lib\\site-packages\\PyInstaller\\bootloader\\Windows-32bit\\runw.exe',
    'EXECUTABLE')])
