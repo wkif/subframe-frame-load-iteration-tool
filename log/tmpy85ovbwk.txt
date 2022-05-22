@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py", line 893, in writetoCSV
+    shutil.copy(saveFile, directory)
+  File "C:\Users\kif_win10\AppData\Local\Programs\Python\Python39\lib\shutil.py", line 427, in copy
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "C:\Users\kif_win10\AppData\Local\Programs\Python\Python39\lib\shutil.py", line 264, in copyfile
+    with open(src, 'rb') as fsrc:
+FileNotFoundError: [Errno 2] No such file or directory: 'cache/Result_IterationN_2022-05-22.xlsx'

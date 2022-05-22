@@ -1,0 +1,100 @@
+InvalidFileException
+Python 3.9.8: F:\File_my\Project\Plug-in_1\Pyqt\venv64\Scripts\python.exe
+Sun May 22 15:22:02 2022
+
+A problem occurred in a Python script.  Here is the sequence of
+function calls leading up to the error, in the order they occurred.
+
+ F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py in writetoCSV(self=<designerFile.index.MyMainForm object>)
+  819                 # xlsxname = csv_to_xlsx_pd(globalData.cacheFilepath, filepath, filename)
+  820                 ansXlsxpath = os.path.join(globalData.cacheFilepath, 'cache', xlsxname).replace('\\', '/')
+  821             wb = load_workbook(filename=ansXlsxpath)
+  822             fill = PatternFill("solid", fgColor="8064a2")
+  823             fill2 = PatternFill("solid", fgColor="ffeb9c")
+wb undefined
+global load_workbook = <function load_workbook>
+filename = 'VRLDA损伤数据.csv'
+ansXlsxpath = 'F:/File_my/Project/Plug-in_1/副车架台架载荷迭代工具v0.5 交付包/测试文件/Test4表头一致/VRLDA损伤数据.csv'
+
+ F:\File_my\Project\Plug-in_1\Pyqt\venv64\lib\site-packages\openpyxl\reader\excel.py in load_workbook(filename='F:/File_my/Project/Plug-in_1/副车架台架载荷迭代工具v0.5 交付包/测试文件/Test4表头一致/VRLDA损伤数据.csv', read_only=False, keep_vba=False, data_only=False, keep_links=True)
+  313 
+  314     """
+  315     reader = ExcelReader(filename, read_only, keep_vba,
+  316                         data_only, keep_links)
+  317     reader.read()
+reader undefined
+global ExcelReader = <class 'openpyxl.reader.excel.ExcelReader'>
+filename = 'F:/File_my/Project/Plug-in_1/副车架台架载荷迭代工具v0.5 交付包/测试文件/Test4表头一致/VRLDA损伤数据.csv'
+read_only = False
+keep_vba = False
+data_only = False
+keep_links = True
+
+ F:\File_my\Project\Plug-in_1\Pyqt\venv64\lib\site-packages\openpyxl\reader\excel.py in __init__(self=<openpyxl.reader.excel.ExcelReader object>, fn='F:/File_my/Project/Plug-in_1/副车架台架载荷迭代工具v0.5 交付包/测试文件/Test4表头一致/VRLDA损伤数据.csv', read_only=False, keep_vba=False, data_only=False, keep_links=True)
+  122     def __init__(self,  fn, read_only=False, keep_vba=KEEP_VBA,
+  123                   data_only=False, keep_links=True):
+  124         self.archive = _validate_archive(fn)
+  125         self.valid_files = self.archive.namelist()
+  126         self.read_only = read_only
+self = <openpyxl.reader.excel.ExcelReader object>
+self.archive undefined
+global _validate_archive = <function _validate_archive>
+fn = 'F:/File_my/Project/Plug-in_1/副车架台架载荷迭代工具v0.5 交付包/测试文件/Test4表头一致/VRLDA损伤数据.csv'
+
+ F:\File_my\Project\Plug-in_1\Pyqt\venv64\lib\site-packages\openpyxl\reader\excel.py in _validate_archive(filename='F:/File_my/Project/Plug-in_1/副车架台架载荷迭代工具v0.5 交付包/测试文件/Test4表头一致/VRLDA损伤数据.csv')
+   92                        'Supported formats are: %s') % (file_format,
+   93                                                        ','.join(SUPPORTED_FORMATS))
+   94             raise InvalidFileException(msg)
+   95 
+   96     archive = ZipFile(filename, 'r')
+global InvalidFileException = <class 'openpyxl.utils.exceptions.InvalidFileException'>
+msg = 'openpyxl does not support .csv file format, plea...t. Supported formats are: .xlsx,.xlsm,.xltx,.xltm'
+InvalidFileException: openpyxl does not support .csv file format, please check you can open it with Excel first. Supported formats are: .xlsx,.xlsm,.xltx,.xltm
+    __cause__ = None
+    __class__ = <class 'openpyxl.utils.exceptions.InvalidFileException'>
+    __context__ = None
+    __delattr__ = <method-wrapper '__delattr__' of InvalidFileException object>
+    __dict__ = {}
+    __dir__ = <built-in method __dir__ of InvalidFileException object>
+    __doc__ = 'Error for trying to open a non-ooxml file.'
+    __eq__ = <method-wrapper '__eq__' of InvalidFileException object>
+    __format__ = <built-in method __format__ of InvalidFileException object>
+    __ge__ = <method-wrapper '__ge__' of InvalidFileException object>
+    __getattribute__ = <method-wrapper '__getattribute__' of InvalidFileException object>
+    __gt__ = <method-wrapper '__gt__' of InvalidFileException object>
+    __hash__ = <method-wrapper '__hash__' of InvalidFileException object>
+    __init__ = <method-wrapper '__init__' of InvalidFileException object>
+    __init_subclass__ = <built-in method __init_subclass__ of type object>
+    __le__ = <method-wrapper '__le__' of InvalidFileException object>
+    __lt__ = <method-wrapper '__lt__' of InvalidFileException object>
+    __module__ = 'openpyxl.utils.exceptions'
+    __ne__ = <method-wrapper '__ne__' of InvalidFileException object>
+    __new__ = <built-in method __new__ of type object>
+    __reduce__ = <built-in method __reduce__ of InvalidFileException object>
+    __reduce_ex__ = <built-in method __reduce_ex__ of InvalidFileException object>
+    __repr__ = <method-wrapper '__repr__' of InvalidFileException object>
+    __setattr__ = <method-wrapper '__setattr__' of InvalidFileException object>
+    __setstate__ = <built-in method __setstate__ of InvalidFileException object>
+    __sizeof__ = <built-in method __sizeof__ of InvalidFileException object>
+    __str__ = <method-wrapper '__str__' of InvalidFileException object>
+    __subclasshook__ = <built-in method __subclasshook__ of type object>
+    __suppress_context__ = False
+    __traceback__ = <traceback object>
+    __weakref__ = None
+    args = ('openpyxl does not support .csv file format, plea...t. Supported formats are: .xlsx,.xlsm,.xltx,.xltm',)
+    with_traceback = <built-in method with_traceback of InvalidFileException object>
+
+The above is a description of an error in a Python program.  Here is
+the original traceback:
+
+Traceback (most recent call last):
+  File "F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py", line 821, in writetoCSV
+    wb = load_workbook(filename=ansXlsxpath)
+  File "F:\File_my\Project\Plug-in_1\Pyqt\venv64\lib\site-packages\openpyxl\reader\excel.py", line 315, in load_workbook
+    reader = ExcelReader(filename, read_only, keep_vba,
+  File "F:\File_my\Project\Plug-in_1\Pyqt\venv64\lib\site-packages\openpyxl\reader\excel.py", line 124, in __init__
+    self.archive = _validate_archive(fn)
+  File "F:\File_my\Project\Plug-in_1\Pyqt\venv64\lib\site-packages\openpyxl\reader\excel.py", line 94, in _validate_archive
+    raise InvalidFileException(msg)
+openpyxl.utils.exceptions.InvalidFileException: openpyxl does not support .csv file format, please check you can open it with Excel first. Supported formats are: .xlsx,.xlsm,.xltx,.xltm
+

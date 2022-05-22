@@ -1,0 +1,73 @@
+TypeError
+Python 3.9.8: F:\File_my\Project\Plug-in_1\Pyqt\venv64\Scripts\python.exe
+Sun May 22 15:32:13 2022
+
+A problem occurred in a Python script.  Here is the sequence of
+function calls leading up to the error, in the order they occurred.
+
+ F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py in ImportVRLDA(self=<designerFile.index.MyMainForm object>)
+  239                         if ok and item:
+  240                             sheetName = item
+  241                         globalData.VRLDApath = copyXlsx(filenames[0], globalData.cacheFilepath, 'VrldaCache.xlsx',
+  242                                                         sheetName)
+  243                     globalData.VRLDAisXLSX = True
+global globalData = <class 'designerFile.index.globalData'>
+globalData.VRLDApath = 'cache/VrldaCache.xlsx'
+global copyXlsx = <function copyXlsx>
+filenames = ['F:/File_my/Project/Plug-in_1/副车架台架载荷迭代工具v0.5 交付包/测试文件/Test5多sheet导入/VRLDA损伤数据.xlsx']
+globalData.cacheFilepath = ''
+sheetName = 'VRLDA损伤数据'
+
+ F:\File_my\Project\Plug-in_1\Pyqt\designerFile\tools\tools.py in copyXlsx(xlsxpath='F:/File_my/Project/Plug-in_1/副车架台架载荷迭代工具v0.5 交付包/测试文件/Test5多sheet导入/VRLDA损伤数据.xlsx', cacheFilepath='', name='VrldaCache.xlsx', *args=('VRLDA损伤数据',))
+  273     if args:
+  274         sheetName = args[0]
+  275         sheet = workbook.sheet_names(sheetName)
+  276     else:
+  277         sheet = workbook.sheet_by_index(0)  # sheet索引从0开始
+sheet undefined
+workbook = <xlrd.book.Book object>
+workbook.sheet_names = <bound method Book.sheet_names of <xlrd.book.Book object>>
+sheetName = 'VRLDA损伤数据'
+TypeError: sheet_names() takes 1 positional argument but 2 were given
+    __cause__ = None
+    __class__ = <class 'TypeError'>
+    __context__ = None
+    __delattr__ = <method-wrapper '__delattr__' of TypeError object>
+    __dict__ = {}
+    __dir__ = <built-in method __dir__ of TypeError object>
+    __doc__ = 'Inappropriate argument type.'
+    __eq__ = <method-wrapper '__eq__' of TypeError object>
+    __format__ = <built-in method __format__ of TypeError object>
+    __ge__ = <method-wrapper '__ge__' of TypeError object>
+    __getattribute__ = <method-wrapper '__getattribute__' of TypeError object>
+    __gt__ = <method-wrapper '__gt__' of TypeError object>
+    __hash__ = <method-wrapper '__hash__' of TypeError object>
+    __init__ = <method-wrapper '__init__' of TypeError object>
+    __init_subclass__ = <built-in method __init_subclass__ of type object>
+    __le__ = <method-wrapper '__le__' of TypeError object>
+    __lt__ = <method-wrapper '__lt__' of TypeError object>
+    __ne__ = <method-wrapper '__ne__' of TypeError object>
+    __new__ = <built-in method __new__ of type object>
+    __reduce__ = <built-in method __reduce__ of TypeError object>
+    __reduce_ex__ = <built-in method __reduce_ex__ of TypeError object>
+    __repr__ = <method-wrapper '__repr__' of TypeError object>
+    __setattr__ = <method-wrapper '__setattr__' of TypeError object>
+    __setstate__ = <built-in method __setstate__ of TypeError object>
+    __sizeof__ = <built-in method __sizeof__ of TypeError object>
+    __str__ = <method-wrapper '__str__' of TypeError object>
+    __subclasshook__ = <built-in method __subclasshook__ of type object>
+    __suppress_context__ = False
+    __traceback__ = <traceback object>
+    args = ('sheet_names() takes 1 positional argument but 2 were given',)
+    with_traceback = <built-in method with_traceback of TypeError object>
+
+The above is a description of an error in a Python program.  Here is
+the original traceback:
+
+Traceback (most recent call last):
+  File "F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py", line 241, in ImportVRLDA
+    globalData.VRLDApath = copyXlsx(filenames[0], globalData.cacheFilepath, 'VrldaCache.xlsx',
+  File "F:\File_my\Project\Plug-in_1\Pyqt\designerFile\tools\tools.py", line 275, in copyXlsx
+    sheet = workbook.sheet_names(sheetName)
+TypeError: sheet_names() takes 1 positional argument but 2 were given
+

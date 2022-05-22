@@ -1,0 +1,119 @@
+KeyboardInterrupt
+Python 3.9.8: F:\File_my\Project\Plug-in_1\Pyqt\venv64\Scripts\python.exe
+Sun May 22 15:16:36 2022
+
+A problem occurred in a Python script.  Here is the sequence of
+function calls leading up to the error, in the order they occurred.
+
+ F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py in writetoCSV(self=<designerFile.index.MyMainForm object>)
+  892                 shutil.copy(ansXlsxpath, directory)
+  893                 yuanname = os.path.join(directory, list[0]).replace('\\', '/')
+  894                 os.rename(yuanname, newFilepath)
+  895                 for i in range(3):
+  896                     if os.path.isfile(newFilepath):
+global os = <module 'os' from 'C:\\Users\\kif_win10\\AppData\\Local\\Programs\\Python\\Python39\\lib\\os.py'>
+os.rename = <built-in function rename>
+yuanname = 'C:/Users/kif_win10/Desktop/cache'
+newFilepath = 'C:/Users/kif_win10/Desktop/Result_IterationN_2022-05-22.xlsx'
+
+ F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py in writetoCSV(self=<designerFile.index.MyMainForm object>)
+  892                 shutil.copy(ansXlsxpath, directory)
+  893                 yuanname = os.path.join(directory, list[0]).replace('\\', '/')
+  894                 os.rename(yuanname, newFilepath)
+  895                 for i in range(3):
+  896                     if os.path.isfile(newFilepath):
+global os = <module 'os' from 'C:\\Users\\kif_win10\\AppData\\Local\\Programs\\Python\\Python39\\lib\\os.py'>
+os.rename = <built-in function rename>
+yuanname = 'C:/Users/kif_win10/Desktop/cache'
+newFilepath = 'C:/Users/kif_win10/Desktop/Result_IterationN_2022-05-22.xlsx'
+
+ F:\File_my\Project\Plug-in_1\Pyqt\_pydevd_bundle\pydevd_cython_win32_39_64.pyx in _pydevd_bundle.pydevd_cython_win32_39_64.SafeCallWrapper.__call__()
+
+
+ F:\File_my\Project\Plug-in_1\Pyqt\_pydevd_bundle\pydevd_cython_win32_39_64.pyx in _pydevd_bundle.pydevd_cython_win32_39_64.PyDBFrame.trace_dispatch()
+
+
+ F:\File_my\Project\Plug-in_1\Pyqt\_pydevd_bundle\pydevd_cython_win32_39_64.pyx in _pydevd_bundle.pydevd_cython_win32_39_64.PyDBFrame.trace_dispatch()
+
+
+ F:\File_my\Project\Plug-in_1\Pyqt\_pydevd_bundle\pydevd_cython_win32_39_64.pyx in _pydevd_bundle.pydevd_cython_win32_39_64.PyDBFrame.trace_dispatch()
+
+
+ F:\File_my\Project\Plug-in_1\Pyqt\_pydevd_bundle\pydevd_cython_win32_39_64.pyx in _pydevd_bundle.pydevd_cython_win32_39_64.PyDBFrame.do_wait_suspend()
+
+
+ D:\program files\JetBrains\PyCharm 2021.2.3\plugins\python\helpers\pydev\pydevd.py in do_wait_suspend(self=<__main__.PyDB object>, thread=<_MainThread(MainThread, started 20576)>, frame=<frame at 0x0000020452BCA7E0, file 'F:\\File_my\...signerFile\\index.py', line 894, code writetoCSV>, event='line', arg=None, send_suspend_message=True, is_unhandled_exception=False)
+ 1145 
+ 1146         with self._threads_suspended_single_notification.notify_thread_suspended(thread_id, stop_reason):
+ 1147             self._do_wait_suspend(thread, frame, event, arg, suspend_type, from_this_thread)
+ 1148 
+ 1149     def _do_wait_suspend(self, thread, frame, event, arg, suspend_type, from_this_thread):
+self = <__main__.PyDB object>
+self._do_wait_suspend = <bound method PyDB._do_wait_suspend of <__main__.PyDB object>>
+thread = <_MainThread(MainThread, started 20576)>
+frame = <frame at 0x0000020452BCA7E0, file 'F:\\File_my\...signerFile\\index.py', line 894, code writetoCSV>
+event = 'line'
+arg = None
+suspend_type = 'trace'
+from_this_thread = []
+
+ D:\program files\JetBrains\PyCharm 2021.2.3\plugins\python\helpers\pydev\pydevd.py in _do_wait_suspend(self=<__main__.PyDB object>, thread=<_MainThread(MainThread, started 20576)>, frame=<frame at 0x0000020452BCA7E0, file 'F:\\File_my\...signerFile\\index.py', line 894, code writetoCSV>, event='line', arg=None, suspend_type='trace', from_this_thread=[])
+ 1160 
+ 1161                 self.process_internal_commands()
+ 1162                 time.sleep(0.01)
+ 1163 
+ 1164         self.cancel_async_evaluation(get_current_thread_id(thread), str(id(frame)))
+global time = <module 'time' (built-in)>
+time.sleep = <built-in function sleep>
+KeyboardInterrupt: 
+    __cause__ = None
+    __class__ = <class 'KeyboardInterrupt'>
+    __context__ = None
+    __delattr__ = <method-wrapper '__delattr__' of KeyboardInterrupt object>
+    __dict__ = {}
+    __dir__ = <built-in method __dir__ of KeyboardInterrupt object>
+    __doc__ = 'Program interrupted by user.'
+    __eq__ = <method-wrapper '__eq__' of KeyboardInterrupt object>
+    __format__ = <built-in method __format__ of KeyboardInterrupt object>
+    __ge__ = <method-wrapper '__ge__' of KeyboardInterrupt object>
+    __getattribute__ = <method-wrapper '__getattribute__' of KeyboardInterrupt object>
+    __gt__ = <method-wrapper '__gt__' of KeyboardInterrupt object>
+    __hash__ = <method-wrapper '__hash__' of KeyboardInterrupt object>
+    __init__ = <method-wrapper '__init__' of KeyboardInterrupt object>
+    __init_subclass__ = <built-in method __init_subclass__ of type object>
+    __le__ = <method-wrapper '__le__' of KeyboardInterrupt object>
+    __lt__ = <method-wrapper '__lt__' of KeyboardInterrupt object>
+    __ne__ = <method-wrapper '__ne__' of KeyboardInterrupt object>
+    __new__ = <built-in method __new__ of type object>
+    __reduce__ = <built-in method __reduce__ of KeyboardInterrupt object>
+    __reduce_ex__ = <built-in method __reduce_ex__ of KeyboardInterrupt object>
+    __repr__ = <method-wrapper '__repr__' of KeyboardInterrupt object>
+    __setattr__ = <method-wrapper '__setattr__' of KeyboardInterrupt object>
+    __setstate__ = <built-in method __setstate__ of KeyboardInterrupt object>
+    __sizeof__ = <built-in method __sizeof__ of KeyboardInterrupt object>
+    __str__ = <method-wrapper '__str__' of KeyboardInterrupt object>
+    __subclasshook__ = <built-in method __subclasshook__ of type object>
+    __suppress_context__ = False
+    __traceback__ = <traceback object>
+    args = ()
+    with_traceback = <built-in method with_traceback of KeyboardInterrupt object>
+
+The above is a description of an error in a Python program.  Here is
+the original traceback:
+
+Traceback (most recent call last):
+  File "F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py", line 894, in writetoCSV
+    os.rename(yuanname, newFilepath)
+  File "F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py", line 894, in writetoCSV
+    os.rename(yuanname, newFilepath)
+  File "_pydevd_bundle\pydevd_cython_win32_39_64.pyx", line 1179, in _pydevd_bundle.pydevd_cython_win32_39_64.SafeCallWrapper.__call__
+  File "_pydevd_bundle\pydevd_cython_win32_39_64.pyx", line 620, in _pydevd_bundle.pydevd_cython_win32_39_64.PyDBFrame.trace_dispatch
+  File "_pydevd_bundle\pydevd_cython_win32_39_64.pyx", line 1095, in _pydevd_bundle.pydevd_cython_win32_39_64.PyDBFrame.trace_dispatch
+  File "_pydevd_bundle\pydevd_cython_win32_39_64.pyx", line 1057, in _pydevd_bundle.pydevd_cython_win32_39_64.PyDBFrame.trace_dispatch
+  File "_pydevd_bundle\pydevd_cython_win32_39_64.pyx", line 317, in _pydevd_bundle.pydevd_cython_win32_39_64.PyDBFrame.do_wait_suspend
+  File "D:\program files\JetBrains\PyCharm 2021.2.3\plugins\python\helpers\pydev\pydevd.py", line 1147, in do_wait_suspend
+    self._do_wait_suspend(thread, frame, event, arg, suspend_type, from_this_thread)
+  File "D:\program files\JetBrains\PyCharm 2021.2.3\plugins\python\helpers\pydev\pydevd.py", line 1162, in _do_wait_suspend
+    time.sleep(0.01)
+KeyboardInterrupt
+

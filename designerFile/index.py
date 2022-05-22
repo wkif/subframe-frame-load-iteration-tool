@@ -12,6 +12,7 @@ import os
 import re
 import shutil
 import sys
+import time
 from decimal import Decimal
 import QCandyUi
 import xlsxwriter
@@ -70,6 +71,7 @@ class globalData():
     save_loadDataPath = ''
     save_resultDataPath = ''
     loadDataisXLSX = False
+    VRLDAisXLSX = False
     temploadDataPath = ''
 
 
@@ -166,6 +168,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         globalData.scrollBar_C2.setValue(e)
 
     def ImportVRLDA(self):
+        globalData.VRLDAisXLSX = False
         # 实例化QFileDialog
         dig = QFileDialog()
         # 设置可以打开任何文件
@@ -226,15 +229,25 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                             if (i % 2 == 0):
                                 self.tableWidget.item(0, j).setBackground(QBrush(QColor(244, 244, 244)))
                 elif (re.search('.xlsx', filename)):
-                    globalData.VRLDApath = filenames[0]
-                    workbook = xlrd.open_workbook(globalData.VRLDApath)
+                    # globalData.VRLDApath = filenames[0]
+                    workbook = xlrd.open_workbook(filenames[0])
                     sheet_names = workbook.sheet_names()
                     if (len(sheet_names) == 1):
-                        sheet = workbook.sheet_by_index(0)
+                        globalData.VRLDApath = copyXlsx(filenames[0], globalData.cacheFilepath, 'VrldaCache.xlsx',
+                                                        sheetName=None)
                     else:
                         item, ok = QInputDialog.getItem(self, "请选择sheet", 'sheet列表', sheet_names, 0, False)
                         if ok and item:
-                            sheet = workbook.sheet_by_name(item)
+                            sheetName = item
+                        print(sheetName)
+                        globalData.VRLDApath = copyXlsx(filenames[0], globalData.cacheFilepath, 'VrldaCache.xlsx',
+                                                        sheetName)
+                    globalData.VRLDAisXLSX = True
+                    workbook = xlrd.open_workbook(globalData.VRLDApath)
+                    sheet_names = workbook.sheet_names()
+
+                    sheet = workbook.sheet_by_index(0)
+
                     rows = sheet.nrows  # 获取有多少行
                     cols = sheet.ncols  # 获取有多少列
                     self.tableWidget.setRowCount(0)
@@ -303,7 +316,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                         "\\",
                         '/')
                     globalData.LoadDatapath_xlsx = copyXlsx(globalData.LoadDatapath, globalData.cacheFilepath,
-                                                            flag=0)
+                                                            'loadPathcache.xlsx', sheetName=None)
                     BlockNameList = getblockNmaeListfromxlsx(globalData.LoadDatapath)
                     globalData.bolckNameList = BlockNameList
                     globalData.BlockCount = len(BlockNameList)
@@ -355,7 +368,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                     globalData.LoadDatapath = demoxlsxpath.replace('\\', '/')
                     # globalData.LoadDatapath = copyXlsx(filenames[0], globalData.cacheFilepath, flag=1, self=MyMainForm)
                     # --------------------------------------
-                    globalData.LoadDatapath_xlsx = copyXlsx(filenames[0], globalData.cacheFilepath, flag=0)
+                    globalData.LoadDatapath_xlsx = copyXlsx(filenames[0], globalData.cacheFilepath,
+                                                            'loadPathcache.xlsx', sheetName=None)
                     BlockNameList = getblockNmaeListfromxlsx(globalData.LoadDatapath)
                     globalData.bolckNameList = BlockNameList
                     globalData.BlockCount = len(BlockNameList)
@@ -408,6 +422,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                         xlsxPath = os.path.join(globalData.cacheFilepath, 'cache', xlsxname).replace('\\', '/')
                     elif re.search('.xlsx', filename):
                         xlsxPath = filenames[0]
+
                     else:
                         msg_box = QMessageBox(QMessageBox.Warning, '警告', '请选择csv文件')
                         msg_box.exec_()
@@ -696,6 +711,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                 self.messageDialog('警告', '请先导入文件数据')
             else:
                 ans = getxlsxData(globalData.LoadDatapath_xlsx, blockName)
+                print(ans)
                 xlsxPath = ans[2]
                 globalData.left = ans[0]
                 globalData.right = ans[1]
@@ -761,7 +777,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                             x = chr(int(GVWindex) + 65)
                             item = x + str(row + 1)
                             ws[item] = value
-            if int(globalData.left) >= 26:
+            if int(globalData.left) + col - 4 >= 26:
                 t = int(globalData.left) - 26
                 x = chr(t + col - 4 + 65)
                 x = 'A' + x
@@ -785,7 +801,17 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             addData2xlsx(globalData.LoadDatapath_xlsx, globalData.LoadDatapath)
             washXlsx(globalData.LoadDatapath)
             shutil.copy(globalData.LoadDatapath, directory)
-            self.messageDialog('提示', '保存成功！')
+            filename = globalData.LoadDatapath.rsplit("/", 1)[1]
+            newFilepath = os.path.join(directory, filename).replace('\\', '/')
+            print(newFilepath)
+            for i in range(3):
+                if os.path.isfile(newFilepath):
+                    self.messageDialog('提示', '保存成功！')
+                    break
+                else:
+                    time.sleep(2)
+                if i == 3:
+                    self.messageDialog('提示', '保存失败，请重试')
 
     def writetoCSV(self):
         if (globalData.cycleFlag == 0):
@@ -795,8 +821,12 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             list = file1.rsplit("/", 1)
             filename = list[1]
             filepath = list[0]
-            xlsxname = csv_to_xlsx_pd(globalData.cacheFilepath, filepath, filename)
-            ansXlsxpath = os.path.join(globalData.cacheFilepath, 'cache', xlsxname).replace('\\', '/')
+            if globalData.VRLDAisXLSX:
+                ansXlsxpath = globalData.VRLDApath
+            else:
+                xlsxname = csv_to_xlsx(os.path.join(globalData.cacheFilepath, 'cache'), file1)
+                # xlsxname = csv_to_xlsx_pd(globalData.cacheFilepath, filepath, filename)
+                ansXlsxpath = os.path.join(globalData.cacheFilepath, 'cache', xlsxname).replace('\\', '/')
             wb = load_workbook(filename=ansXlsxpath)
             fill = PatternFill("solid", fgColor="8064a2")
             fill2 = PatternFill("solid", fgColor="ffeb9c")
@@ -864,13 +894,21 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                 list = ansXlsxpath.rsplit("/", 1)
                 filename = 'Result_IterationN_' + time + '.xlsx'
                 filepath = list[0]
-                saveFile = os.path.join(filepath, filename).replace('\\', '/')
-                if os.path.exists(saveFile):
-                    os.remove(saveFile)
-                else:
-                    os.rename(ansXlsxpath, saveFile)
-                    shutil.copy(saveFile, directory)
-                    self.messageDialog('提示', '保存成功！')
+                newFilepath = os.path.join(directory, filename).replace('\\', '/')
+                # saveFile = os.path.join(filepath, filename).replace('\\', '/')
+                if os.path.exists(newFilepath):
+                    os.remove(newFilepath)
+                shutil.copy(ansXlsxpath, directory)
+                yuanname = os.path.join(directory, list[1]).replace('\\', '/')
+                os.rename(yuanname, newFilepath)
+                for i in range(3):
+                    if os.path.isfile(newFilepath):
+                        self.messageDialog('提示', '保存成功！')
+                        break
+                    else:
+                        time.sleep(2)
+                    if i == 2:
+                        self.messageDialog('提示', '保存失败，请重试')
 
     def messageDialog(self, type, message):
         # 核心功能代码就两行，可以加到需要的地方
@@ -880,6 +918,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             x = QMessageBox.Information
         msg_box = QMessageBox(x, type, message)
         msg_box.exec_()
+
+
 
     def clearAll(self):
         self.tableWidget.setRowCount(0)
@@ -905,12 +945,13 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.tableWidget_2.setHorizontalHeaderLabels(ShowbolckNameList)
         globalData.HotSpots_N_List = []
         globalData.LoadDatapath = ''
-        # path = os.path.join(globalData.cacheFilepath, 'cache').replace('\\', '/')
-        # print(path)
-        # os.removedirs(path)
+        globalData.VRLDAisXLSX = False
+        path = os.path.join(globalData.cacheFilepath, 'cache').replace('\\', '/')
+        shutil.rmtree(path)
+        os.mkdir(path)
 
 
-# if __name__ == "__main__":
+    # if __name__ == "__main__":
 def main():
     createLog()
     app = QApplication(sys.argv)

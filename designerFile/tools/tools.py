@@ -130,8 +130,7 @@ def csv_to_xlsx_pd(cacheFilepath, filepath, filename):
     worksheet = workbook.add_worksheet('first_sheet')
     workbook.close()
     with ExcelWriter(xlsxPath) as ew:
-        pd.read_csv(csvPath).to_excel(ew, index=False)
-
+        pd.read_csv(csvPath, encoding='ISO-8859-1').to_excel(ew, index=False)
     return xlsxname
 
 
@@ -159,13 +158,15 @@ def csv_to_xlsx(filepath, csvPath):
 
 
 def addData2xlsx(xlsxPathcache, xlsxPath):
+    # 将xlsxPathcache数据复制到xlsxPath新sheet上
+
     workbook = xlrd.open_workbook(xlsxPathcache)
     sheet = workbook.sheet_by_index(0)  # sheet索引从0开始
     rows = sheet.nrows  # 获取有多少行
     cols = sheet.ncols  # 获取有多少列
     datetime_object = datetime.datetime.now()
-    time = str(datetime_object).split(' ')[0] + '-' + str(datetime_object).split('.')[1]
-    SheetName = 'Load_iterationN' + time
+    time = str(datetime_object).split('.')[1]
+    SheetName = 'Load_iterationN_' + time
     print(SheetName)
     wb = openpyxl.load_workbook(xlsxPath)
     wb.create_sheet(SheetName)
@@ -267,18 +268,21 @@ def ScientificEnumerationFormatting(a):
     return f"{x:.2e}"
 
 
-def copyXlsx(xlsxpath, cacheFilepath, flag):
+def copyXlsx(xlsxpath, cacheFilepath, name, sheetName):
     workbook = xlrd.open_workbook(xlsxpath)
-    sheet = workbook.sheet_by_index(0)  # sheet索引从0开始
+    if sheetName:
+        sheet = workbook.sheet_by_name(sheetName)
+    else:
+        sheet = workbook.sheet_by_index(0)  # sheet索引从0开始
     rows = sheet.nrows  # 获取有多少行
     cols = sheet.ncols  # 获取有多少列
-    if flag == 0:
-        demoxlsxpath = os.path.join(cacheFilepath, 'cache', 'loadPathcache.xlsx')
-    else:
-        datetime_object = datetime.datetime.now()
-        time = str(datetime_object).split(' ')[0] + str(datetime_object).split('.')[1]
-        xlsxname = 'Load_ IterationN' + time + '.xlsx'
-        demoxlsxpath = os.path.join(cacheFilepath, 'cache', xlsxname)
+
+    demoxlsxpath = os.path.join(cacheFilepath, 'cache', name)
+    # else:
+    #     datetime_object = datetime.datetime.now()
+    #     time = str(datetime_object).split(' ')[0] + str(datetime_object).split('.')[1]
+    #     xlsxname = 'Load_ IterationN' + time + '.xlsx'
+    #     demoxlsxpath = os.path.join(cacheFilepath, 'cache', xlsxname)
     workbook2 = xlsxwriter.Workbook(demoxlsxpath)  # 创建一个excel文件
     # 在文件中创建一个名为TEST的sheet,不加名字默认为sheet1
     worksheet = workbook2.add_worksheet(u'Sheet1')
