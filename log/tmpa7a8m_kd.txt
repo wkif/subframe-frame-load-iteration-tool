@@ -1,0 +1,96 @@
+ValueError
+Python 3.9.8: F:\File_my\Project\Plug-in_1\Pyqt\venv64\Scripts\python.exe
+Fri Jun 10 12:10:58 2022
+
+A problem occurred in a Python script.  Here is the sequence of
+function calls leading up to the error, in the order they occurred.
+
+ F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py in updateData(self=<designerFile.index.MyMainForm object>, row=2, col=4)
+  835                                 x = 'A' + x
+  836                                 item = x + str(row + 1)
+  837                                 ws[item] = value
+  838                             else:
+  839                                 x = chr(int(GVWindex) + 65)
+ws = <Worksheet "Sheet1">
+item = 'A[3'
+value = '9800'
+
+ F:\File_my\Project\Plug-in_1\Pyqt\venv64\lib\site-packages\openpyxl\worksheet\worksheet.py in __setitem__(self=<Worksheet "Sheet1">, key='A[3', value='9800')
+  311 
+  312     def __setitem__(self, key, value):
+  313         self[key].value = value
+  314 
+  315 
+self = <Worksheet "Sheet1">
+key = 'A[3'
+].value undefined
+value = '9800'
+
+ F:\File_my\Project\Plug-in_1\Pyqt\venv64\lib\site-packages\openpyxl\worksheet\worksheet.py in __getitem__(self=<Worksheet "Sheet1">, key='A[3')
+  288             key = str(key
+  289                       )
+  290         min_col, min_row, max_col, max_row = range_boundaries(key)
+  291 
+  292         if not any([min_col, min_row, max_col, max_row]):
+min_col undefined
+min_row undefined
+max_col undefined
+max_row undefined
+global range_boundaries = <function range_boundaries>
+key = 'A[3'
+
+ F:\File_my\Project\Plug-in_1\Pyqt\venv64\lib\site-packages\openpyxl\utils\cell.py in range_boundaries(range_string='A[3')
+  133     m = ABSOLUTE_RE.match(range_string)
+  134     if not m:
+  135         raise ValueError(msg)
+  136 
+  137     min_col, min_row, sep, max_col, max_row = m.groups()
+builtinValueError = <class 'ValueError'>
+msg = 'A[3 is not a valid coordinate or range'
+ValueError: A[3 is not a valid coordinate or range
+    __cause__ = None
+    __class__ = <class 'ValueError'>
+    __context__ = None
+    __delattr__ = <method-wrapper '__delattr__' of ValueError object>
+    __dict__ = {}
+    __dir__ = <built-in method __dir__ of ValueError object>
+    __doc__ = 'Inappropriate argument value (of correct type).'
+    __eq__ = <method-wrapper '__eq__' of ValueError object>
+    __format__ = <built-in method __format__ of ValueError object>
+    __ge__ = <method-wrapper '__ge__' of ValueError object>
+    __getattribute__ = <method-wrapper '__getattribute__' of ValueError object>
+    __gt__ = <method-wrapper '__gt__' of ValueError object>
+    __hash__ = <method-wrapper '__hash__' of ValueError object>
+    __init__ = <method-wrapper '__init__' of ValueError object>
+    __init_subclass__ = <built-in method __init_subclass__ of type object>
+    __le__ = <method-wrapper '__le__' of ValueError object>
+    __lt__ = <method-wrapper '__lt__' of ValueError object>
+    __ne__ = <method-wrapper '__ne__' of ValueError object>
+    __new__ = <built-in method __new__ of type object>
+    __reduce__ = <built-in method __reduce__ of ValueError object>
+    __reduce_ex__ = <built-in method __reduce_ex__ of ValueError object>
+    __repr__ = <method-wrapper '__repr__' of ValueError object>
+    __setattr__ = <method-wrapper '__setattr__' of ValueError object>
+    __setstate__ = <built-in method __setstate__ of ValueError object>
+    __sizeof__ = <built-in method __sizeof__ of ValueError object>
+    __str__ = <method-wrapper '__str__' of ValueError object>
+    __subclasshook__ = <built-in method __subclasshook__ of type object>
+    __suppress_context__ = False
+    __traceback__ = <traceback object>
+    args = ('A[3 is not a valid coordinate or range',)
+    with_traceback = <built-in method with_traceback of ValueError object>
+
+The above is a description of an error in a Python program.  Here is
+the original traceback:
+
+Traceback (most recent call last):
+  File "F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py", line 837, in updateData
+    ws[item] = value
+  File "F:\File_my\Project\Plug-in_1\Pyqt\venv64\lib\site-packages\openpyxl\worksheet\worksheet.py", line 313, in __setitem__
+    self[key].value = value
+  File "F:\File_my\Project\Plug-in_1\Pyqt\venv64\lib\site-packages\openpyxl\worksheet\worksheet.py", line 290, in __getitem__
+    min_col, min_row, max_col, max_row = range_boundaries(key)
+  File "F:\File_my\Project\Plug-in_1\Pyqt\venv64\lib\site-packages\openpyxl\utils\cell.py", line 135, in range_boundaries
+    raise ValueError(msg)
+ValueError: A[3 is not a valid coordinate or range
+

@@ -1,0 +1,70 @@
+UnboundLocalError
+Python 3.9.8: F:\File_my\Project\Plug-in_1\Pyqt\venv64\Scripts\python.exe
+Fri Jun 10 13:51:25 2022
+
+A problem occurred in a Python script.  Here is the sequence of
+function calls leading up to the error, in the order they occurred.
+
+ F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py in noticeSave(self=<designerFile.index.MyMainForm object>)
+  922                     shutil.copy(globalData.LoadDatapath, directory)
+  923                     if os.path.isfile(newFilepath):
+  924                         self.messageDialog(' 提示', '保存成功！')
+  925                 # print(newFilepath)
+  926                 # for i in range(3):
+self = <designerFile.index.MyMainForm object>
+self.messageDialog = <bound method MyMainForm.messageDialog of <designerFile.index.MyMainForm object>>
+
+ F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py in messageDialog(self=<designerFile.index.MyMainForm object>, type=' 提示', message='保存成功！')
+ 1343         if type == '提示':
+ 1344             x = QMessageBox.Information
+ 1345         msg_box = QMessageBox(x, type, message)
+ 1346         msg_box.exec_()
+ 1347 
+msg_box undefined
+global QMessageBox = <class 'PyQt5.QtWidgets.QMessageBox'>
+x undefined
+type = ' 提示'
+message = '保存成功！'
+UnboundLocalError: local variable 'x' referenced before assignment
+    __cause__ = None
+    __class__ = <class 'UnboundLocalError'>
+    __context__ = None
+    __delattr__ = <method-wrapper '__delattr__' of UnboundLocalError object>
+    __dict__ = {}
+    __dir__ = <built-in method __dir__ of UnboundLocalError object>
+    __doc__ = 'Local name referenced but not bound to a value.'
+    __eq__ = <method-wrapper '__eq__' of UnboundLocalError object>
+    __format__ = <built-in method __format__ of UnboundLocalError object>
+    __ge__ = <method-wrapper '__ge__' of UnboundLocalError object>
+    __getattribute__ = <method-wrapper '__getattribute__' of UnboundLocalError object>
+    __gt__ = <method-wrapper '__gt__' of UnboundLocalError object>
+    __hash__ = <method-wrapper '__hash__' of UnboundLocalError object>
+    __init__ = <method-wrapper '__init__' of UnboundLocalError object>
+    __init_subclass__ = <built-in method __init_subclass__ of type object>
+    __le__ = <method-wrapper '__le__' of UnboundLocalError object>
+    __lt__ = <method-wrapper '__lt__' of UnboundLocalError object>
+    __ne__ = <method-wrapper '__ne__' of UnboundLocalError object>
+    __new__ = <built-in method __new__ of type object>
+    __reduce__ = <built-in method __reduce__ of UnboundLocalError object>
+    __reduce_ex__ = <built-in method __reduce_ex__ of UnboundLocalError object>
+    __repr__ = <method-wrapper '__repr__' of UnboundLocalError object>
+    __setattr__ = <method-wrapper '__setattr__' of UnboundLocalError object>
+    __setstate__ = <built-in method __setstate__ of UnboundLocalError object>
+    __sizeof__ = <built-in method __sizeof__ of UnboundLocalError object>
+    __str__ = <method-wrapper '__str__' of UnboundLocalError object>
+    __subclasshook__ = <built-in method __subclasshook__ of type object>
+    __suppress_context__ = False
+    __traceback__ = <traceback object>
+    args = ("local variable 'x' referenced before assignment",)
+    with_traceback = <built-in method with_traceback of UnboundLocalError object>
+
+The above is a description of an error in a Python program.  Here is
+the original traceback:
+
+Traceback (most recent call last):
+  File "F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py", line 924, in noticeSave
+    self.messageDialog(' 提示', '保存成功！')
+  File "F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py", line 1345, in messageDialog
+    msg_box = QMessageBox(x, type, message)
+UnboundLocalError: local variable 'x' referenced before assignment
+

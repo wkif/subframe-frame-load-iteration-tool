@@ -3,7 +3,7 @@ import codecs
 import datetime
 
 import openpyxl
-from PyQt5.QtWidgets import QInputDialog
+from PyQt5.QtWidgets import QInputDialog, QMessageBox
 from openpyxl import load_workbook
 from pandas.io.excel import ExcelWriter
 import pandas as pd
@@ -45,9 +45,10 @@ class Data():
     GVWindexList = []
 
 
-def getxlsxData(path, blockName):
+def getxlsxData(path, blockName, GVWindexList):
+    Data.GVWindexList = GVWindexList
     list = path.rsplit("/", 1)
-    print('---------------------------', list)
+    # print('---------------------------', list)
     filename = list[1]
     filepath = list[0]
     # if not re.search('.xlsx', filename):
@@ -73,6 +74,9 @@ def readData(filepath, xlsxname, blockName):
     sheet = workbook.sheet_by_index(0)  # sheet索引从0开始
     rows = sheet.nrows  # 获取有多少行
     cols = sheet.ncols  # 获取有多少列
+    if cols > 676:
+        msg_box = QMessageBox(QMessageBox.Warning, '警告', '数据超过676列')
+        msg_box.exec_()
     blocknAME = blockName
     # sheet.cell_value(第几行,第几列)
     demoxlsxpath = os.path.join(filepath, 'cache.xlsx')
@@ -85,11 +89,11 @@ def readData(filepath, xlsxname, blockName):
             if (re.search('Unnamed', str(value))):
                 value = ''
             worksheet.write(i, j, value)
-
-    for j in range(4, cols):
-        value = sheet.cell_value(1, j)
-        if (value == 'GVW'):
-            Data.GVWindexList.append(j)
+    if len(Data.GVWindexList) == 0:
+        for j in range(4, cols):
+            value = sheet.cell_value(1, j)
+            if (value == 'GVW'):
+                Data.GVWindexList.append(j)
     left = 0
     right = 0
     flag = 0
@@ -136,7 +140,7 @@ def csv_to_xlsx_pd(cacheFilepath, filepath, filename):
 
 def csv_to_xlsx(filepath, csvPath):
     datetime_object = datetime.datetime.now()
-    time = str(datetime_object).split(' ')[0] + '-' + str(datetime_object).split('.')[1]
+    time = str(datetime_object).split(' ')[0]
     xlsxname = 'Load_ IterationN' + time + '.xlsx'
     xlsxPath = os.path.join(filepath, xlsxname)
     workbook = xlsxwriter.Workbook(xlsxPath)  # 创建一个excel文件
@@ -166,26 +170,41 @@ def addData2xlsx(xlsxPathcache, xlsxPath):
     cols = sheet.ncols  # 获取有多少列
     datetime_object = datetime.datetime.now()
     time = str(datetime_object).split('.')[1]
-    SheetName = 'Load_iterationN_' + time
-    print(SheetName)
+    # SheetName = 'Load_iterationN_' + time
+
+    w = xlrd.open_workbook(xlsxPath)
+    sheetLength = len(w.sheet_names()) + 1
+    # print(sheetLength)
+    sheetName = 'Sheet' + str(sheetLength)
     wb = openpyxl.load_workbook(xlsxPath)
-    wb.create_sheet(SheetName)
-    dest_sheet = wb.get_sheet_by_name(SheetName)
+    wb.create_sheet(sheetName)
+    dest_sheet = wb.get_sheet_by_name(sheetName)
     for i in range(0, rows):
         for j in range(0, cols):
             value = str(sheet.cell_value(i, j))
             if (re.search('Unnamed', value)):
                 value = ''
-            if (j >= 26):
-                t = int(j) - 26
-                x = chr(t + 65)
-                x = 'A' + x
-                item = x + str(i + 1)
-                dest_sheet[item] = value
-            else:
+            if j < 26:
                 x = chr(int(j) + 65)
                 item = x + str(i + 1)
                 dest_sheet[item] = value
+            else:
+                count = int(j / 26)
+                t = int(j) - 26 * count
+                x = chr(t + 65)
+                x = chr(65 + count - 1) + x
+                item = x + str(i + 1)
+                dest_sheet[item] = value
+            # if (j >= 26):
+            #     t = int(j) - 26
+            #     x = chr(t + 65)
+            #     x = 'A' + x
+            #     item = x + str(i + 1)
+            #     dest_sheet[item] = value
+            # else:
+            #     x = chr(int(j) + 65)
+            #     item = x + str(i + 1)
+            #     dest_sheet[item] = value
     wb.save(xlsxPath)
 
 
@@ -201,16 +220,27 @@ def washXlsx(xlsxPath):
             value = str(sheet.cell_value(i, j))
             if (re.search('Unnamed', value)):
                 value = ''
-            if (j >= 26):
-                t = int(j) - 26
-                x = chr(t + 65)
-                x = 'A' + x
-                item = x + str(i + 1)
-                dest_sheet[item] = value
-            else:
+            if j < 26:
                 x = chr(int(j) + 65)
                 item = x + str(i + 1)
                 dest_sheet[item] = value
+            else:
+                count = int(j / 26)
+                t = int(j) - 26 * count
+                x = chr(t + 65)
+                x = chr(65 + count - 1) + x
+                item = x + str(i + 1)
+                dest_sheet[item] = value
+            # if (j >= 26):
+            #     t = int(j) - 26
+            #     x = chr(t + 65)
+            #     x = 'A' + x
+            #     item = x + str(i + 1)
+            #     dest_sheet[item] = value
+            # else:
+            #     x = chr(int(j) + 65)
+            #     item = x + str(i + 1)
+            #     dest_sheet[item] = value
     wb.save(xlsxPath)
 
 

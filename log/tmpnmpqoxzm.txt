@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "F:\File_my\Project\Plug-in_1\Pyqt\designerFile\index.py", line 917, in noticeSave
+    shutil.copy(globalData.LoadDatapath, directory)
+  File "C:\Users\kif_win10\AppData\Local\Programs\Python\Python39\lib\shutil.py", line 427, in copy
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "C:\Users\kif_win10\AppData\Local\Programs\Python\Python39\lib\shutil.py", line 266, in copyfile
+    with open(dst, 'wb') as fdst:
+PermissionError: [Errno 13] Permission denied: 'F:/File_my/Project/Plug-in_1/file/²âÊÔÎÄ¼þ6.1/Q5\\Load_ IterationN2022-06-10.xlsx'
